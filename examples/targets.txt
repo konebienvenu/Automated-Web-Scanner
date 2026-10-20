@@ -1,0 +1,10 @@
+# Cybersecurity Web Scanner - Sample Target List
+# Lines starting with # are comments and will be ignored.
+
+http://127.0.0.1:8888/vulnerable/cors-reflected-creds
+http://127.0.0.1:8888/vulnerable/cors-null
+http://127.0.0.1:8888/vulnerable/weak-csp
+http://127.0.0.1:8888/vulnerable/missing-headers
+http://127.0.0.1:8888/secure/hardened
+https://owasp.org
+https://github.com

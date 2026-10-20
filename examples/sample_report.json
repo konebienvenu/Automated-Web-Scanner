@@ -1,0 +1,346 @@
+{
+  "target_url": "http://127.0.0.1:8889/vulnerable/cors-reflected-creds",
+  "timestamp": "2026-10-20 04:14:21 UTC",
+  "ip_address": "127.0.0.1",
+  "status_code": 200,
+  "response_time_ms": 26.388168334960938,
+  "server_banner": "BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1",
+  "score": 0,
+  "grade": "F",
+  "summary": {
+    "total_findings": 11,
+    "critical": 4,
+    "high": 1,
+    "medium": 1,
+    "low": 5,
+    "info": 0
+  },
+  "findings": [
+    {
+      "id": "HDR-CSP-01",
+      "title": "Missing Content-Security-Policy (CSP) Header",
+      "category": "Security Headers",
+      "severity": "HIGH",
+      "description": "Content Security Policy (CSP) is an effective layer of defense against Cross-Site Scripting (XSS), data injection, and unauthorized frame embedding.",
+      "evidence": "Header 'Content-Security-Policy' was not found in response.",
+      "impact": "Leaves client vulnerable to Stored, Reflected, and DOM-based Cross-Site Scripting (XSS).",
+      "remediation": "Define a restrictive CSP such as: default-src 'self'; script-src 'self'; object-src 'none';",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-79",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html",
+        "https://csp-evaluator.withgoogle.com/"
+      ]
+    },
+    {
+      "id": "HDR-XFO-01",
+      "title": "Missing Clickjacking Defense (X-Frame-Options / frame-ancestors)",
+      "category": "Security Headers",
+      "severity": "MEDIUM",
+      "description": "Neither X-Frame-Options nor CSP frame-ancestors is present to restrict iframe embedding.",
+      "evidence": "Neither X-Frame-Options nor frame-ancestors found in response headers.",
+      "impact": "Allows malicious sites to embed target inside hidden iframes to conduct Clickjacking attacks.",
+      "remediation": "Set 'X-Frame-Options: DENY' or 'SAMEORIGIN', or use CSP 'frame-ancestors' directive.",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-1021",
+      "references": [
+        "https://owasp.org/www-community/attacks/Clickjacking",
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options"
+      ]
+    },
+    {
+      "id": "HDR-XCTO-01",
+      "title": "Missing X-Content-Type-Options Header",
+      "category": "Security Headers",
+      "severity": "LOW",
+      "description": "The X-Content-Type-Options: nosniff header prevents the browser from MIME-sniffing a response away from the declared content-type, preventing executable content execution in non-executable formats.",
+      "evidence": "Header 'X-Content-Type-Options' is missing.",
+      "impact": "Browsers may execute malicious user-uploaded content (e.g. SVG or images parsed as HTML/JS).",
+      "remediation": "Add header: 'X-Content-Type-Options: nosniff'",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-430",
+      "references": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options"
+      ]
+    },
+    {
+      "id": "HDR-RP-01",
+      "title": "Missing Referrer-Policy Header",
+      "category": "Security Headers",
+      "severity": "LOW",
+      "description": "Referrer-Policy governs what referrer information sent in the Referer header should be included with requests made.",
+      "evidence": "Header 'Referrer-Policy' is missing.",
+      "impact": "Sensitive URL query parameters (tokens, session IDs) may be leaked to third-party domains.",
+      "remediation": "Set 'Referrer-Policy: strict-origin-when-cross-origin' or 'no-referrer'.",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-200",
+      "references": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy"
+      ]
+    },
+    {
+      "id": "HDR-PP-01",
+      "title": "Missing Permissions-Policy Header",
+      "category": "Security Headers",
+      "severity": "LOW",
+      "description": "Permissions-Policy allows site administrators to declare which browser features and APIs (e.g., geolocation, camera, microphone, payment) can be used by the page and embedded iframes.",
+      "evidence": "Header 'Permissions-Policy' is not returned.",
+      "impact": "Third-party embedded scripts or iframes could attempt to access sensitive hardware APIs.",
+      "remediation": "Add header: Permissions-Policy: camera=(), microphone=(), geolocation=()",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-16",
+      "references": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy"
+      ]
+    },
+    {
+      "id": "HDR-LEAK-SERVER",
+      "title": "Server Technology Information Disclosure (Server)",
+      "category": "Information Disclosure",
+      "severity": "LOW",
+      "description": "Server exposes technology header 'server' containing 'BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1'.",
+      "evidence": "server: BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1",
+      "impact": "Revealing backend software frameworks and versions assists attackers in fingerprinting known CVE vulnerabilities and tailoring exploit payloads.",
+      "remediation": "Disable, strip, or mask the 'server' header in reverse proxy or web server config.",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-200",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html"
+      ]
+    },
+    {
+      "id": "HDR-LEAK-X_POWERED_BY",
+      "title": "Server Technology Information Disclosure (X-Powered-By)",
+      "category": "Information Disclosure",
+      "severity": "LOW",
+      "description": "Server exposes technology header 'x-powered-by' containing 'PHP/7.4.3'.",
+      "evidence": "x-powered-by: PHP/7.4.3",
+      "impact": "Revealing backend software frameworks and versions assists attackers in fingerprinting known CVE vulnerabilities and tailoring exploit payloads.",
+      "remediation": "Disable, strip, or mask the 'x-powered-by' header in reverse proxy or web server config.",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "cwe_id": "CWE-200",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html"
+      ]
+    },
+    {
+      "id": "CORS-CRIT-REFLECTION",
+      "title": "Critical CORS Vulnerability: Reflected Origin with Credentials (Arbitrary Third-Party Origin Reflection)",
+      "category": "CORS Misconfiguration",
+      "severity": "CRITICAL",
+      "description": "The endpoint dynamically reflects the provided Origin header 'https://evil-attacker.com' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).",
+      "evidence": "Request Origin: https://evil-attacker.com\nResponse Access-Control-Allow-Origin: https://evil-attacker.com\nResponse Access-Control-Allow-Credentials: true",
+      "impact": "An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.",
+      "remediation": "Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.",
+      "owasp_category": "A01:2021-Broken Access Control",
+      "cwe_id": "CWE-942",
+      "references": [
+        "https://portswigger.net/web-security/cors",
+        "https://owasp.org/www-community/attacks/CORS_OriginHeaderScrutiny",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Origin_Resource_Sharing_Cheat_Sheet.html"
+      ]
+    },
+    {
+      "id": "CORS-CRIT-NULL_ORIGIN",
+      "title": "Critical CORS Vulnerability: Reflected Origin with Credentials (Null Origin Trust (Sandboxed iframe / data: URI))",
+      "category": "CORS Misconfiguration",
+      "severity": "CRITICAL",
+      "description": "The endpoint dynamically reflects the provided Origin header 'null' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).",
+      "evidence": "Request Origin: null\nResponse Access-Control-Allow-Origin: null\nResponse Access-Control-Allow-Credentials: true",
+      "impact": "An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.",
+      "remediation": "Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.",
+      "owasp_category": "A01:2021-Broken Access Control",
+      "cwe_id": "CWE-942",
+      "references": [
+        "https://portswigger.net/web-security/cors",
+        "https://owasp.org/www-community/attacks/CORS_OriginHeaderScrutiny",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Origin_Resource_Sharing_Cheat_Sheet.html"
+      ]
+    },
+    {
+      "id": "CORS-CRIT-SUFFIX_BYPASS",
+      "title": "Critical CORS Vulnerability: Reflected Origin with Credentials (Regex Suffix Bypass (Attacker domain as suffix))",
+      "category": "CORS Misconfiguration",
+      "severity": "CRITICAL",
+      "description": "The endpoint dynamically reflects the provided Origin header 'http://127.0.0.1.attacker.com' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).",
+      "evidence": "Request Origin: http://127.0.0.1.attacker.com\nResponse Access-Control-Allow-Origin: http://127.0.0.1.attacker.com\nResponse Access-Control-Allow-Credentials: true",
+      "impact": "An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.",
+      "remediation": "Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.",
+      "owasp_category": "A01:2021-Broken Access Control",
+      "cwe_id": "CWE-942",
+      "references": [
+        "https://portswigger.net/web-security/cors",
+        "https://owasp.org/www-community/attacks/CORS_OriginHeaderScrutiny",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Origin_Resource_Sharing_Cheat_Sheet.html"
+      ]
+    },
+    {
+      "id": "CORS-CRIT-PREFIX_BYPASS",
+      "title": "Critical CORS Vulnerability: Reflected Origin with Credentials (Regex Prefix Bypass (Prepend attacker name))",
+      "category": "CORS Misconfiguration",
+      "severity": "CRITICAL",
+      "description": "The endpoint dynamically reflects the provided Origin header 'http://attacker-127.0.0.1' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).",
+      "evidence": "Request Origin: http://attacker-127.0.0.1\nResponse Access-Control-Allow-Origin: http://attacker-127.0.0.1\nResponse Access-Control-Allow-Credentials: true",
+      "impact": "An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.",
+      "remediation": "Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.",
+      "owasp_category": "A01:2021-Broken Access Control",
+      "cwe_id": "CWE-942",
+      "references": [
+        "https://portswigger.net/web-security/cors",
+        "https://owasp.org/www-community/attacks/CORS_OriginHeaderScrutiny",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Origin_Resource_Sharing_Cheat_Sheet.html"
+      ]
+    }
+  ],
+  "headers_audit": [
+    {
+      "name": "Strict-Transport-Security",
+      "present": false,
+      "value": null,
+      "status": "INFO",
+      "details": "Not applicable on plain HTTP endpoints. HSTS should be enforced once redirected to HTTPS.",
+      "recommendation": "Enforce HTTPS redirect and configure Strict-Transport-Security."
+    },
+    {
+      "name": "Content-Security-Policy",
+      "present": false,
+      "value": null,
+      "status": "FAIL",
+      "details": "Missing. Target provides no CSP mitigation against Cross-Site Scripting.",
+      "recommendation": "Implement a robust CSP policy restricting script and object sources."
+    },
+    {
+      "name": "X-Frame-Options",
+      "present": false,
+      "value": null,
+      "status": "FAIL",
+      "details": "Missing Clickjacking protection.",
+      "recommendation": "Set X-Frame-Options: SAMEORIGIN or DENY."
+    },
+    {
+      "name": "X-Content-Type-Options",
+      "present": false,
+      "value": null,
+      "status": "FAIL",
+      "details": "Missing. MIME sniffing protection is disabled.",
+      "recommendation": "Set X-Content-Type-Options: nosniff"
+    },
+    {
+      "name": "Referrer-Policy",
+      "present": false,
+      "value": null,
+      "status": "FAIL",
+      "details": "Missing. Default browser fallback will be used.",
+      "recommendation": "Set Referrer-Policy: strict-origin-when-cross-origin"
+    },
+    {
+      "name": "Permissions-Policy",
+      "present": false,
+      "value": null,
+      "status": "WARN",
+      "details": "Missing modern browser hardware/API restriction header.",
+      "recommendation": "Specify explicit permissions (e.g. camera=(), microphone=())."
+    },
+    {
+      "name": "Cross-Origin-Isolation (COOP/COEP)",
+      "present": false,
+      "value": null,
+      "status": "INFO",
+      "details": "Not configured. Modern defense against Spectre side-channel attacks and tab-nabbing.",
+      "recommendation": "Consider adding Cross-Origin-Opener-Policy: same-origin."
+    },
+    {
+      "name": "Server",
+      "present": true,
+      "value": "BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1",
+      "status": "WARN",
+      "details": "Banner leakage: exposes Server Software & Version.",
+      "recommendation": "Remove or mask 'server'."
+    },
+    {
+      "name": "X-Powered-By",
+      "present": true,
+      "value": "PHP/7.4.3",
+      "status": "WARN",
+      "details": "Banner leakage: exposes Application Technology / Framework.",
+      "recommendation": "Remove or mask 'x-powered-by'."
+    }
+  ],
+  "cors_probes": [
+    {
+      "name": "Arbitrary Third-Party Origin Reflection",
+      "probe_origin": "https://evil-attacker.com",
+      "status_code": 200,
+      "acao_received": "https://evil-attacker.com",
+      "acac_received": "true",
+      "acam_received": null,
+      "acah_received": null,
+      "vulnerable": true,
+      "severity": "CRITICAL",
+      "details": "VULNERABLE: Reflects 'https://evil-attacker.com' WITH credentials enabled (ACAC: true)!",
+      "test_type": "GET"
+    },
+    {
+      "name": "Null Origin Trust (Sandboxed iframe / data: URI)",
+      "probe_origin": "null",
+      "status_code": 200,
+      "acao_received": "null",
+      "acac_received": "true",
+      "acam_received": null,
+      "acah_received": null,
+      "vulnerable": true,
+      "severity": "CRITICAL",
+      "details": "VULNERABLE: Reflects 'null' WITH credentials enabled (ACAC: true)!",
+      "test_type": "GET"
+    },
+    {
+      "name": "Regex Suffix Bypass (Attacker domain as suffix)",
+      "probe_origin": "http://127.0.0.1.attacker.com",
+      "status_code": 200,
+      "acao_received": "http://127.0.0.1.attacker.com",
+      "acac_received": "true",
+      "acam_received": null,
+      "acah_received": null,
+      "vulnerable": true,
+      "severity": "CRITICAL",
+      "details": "VULNERABLE: Reflects 'http://127.0.0.1.attacker.com' WITH credentials enabled (ACAC: true)!",
+      "test_type": "GET"
+    },
+    {
+      "name": "Regex Prefix Bypass (Prepend attacker name)",
+      "probe_origin": "http://attacker-127.0.0.1",
+      "status_code": 200,
+      "acao_received": "http://attacker-127.0.0.1",
+      "acac_received": "true",
+      "acam_received": null,
+      "acah_received": null,
+      "vulnerable": true,
+      "severity": "CRITICAL",
+      "details": "VULNERABLE: Reflects 'http://attacker-127.0.0.1' WITH credentials enabled (ACAC: true)!",
+      "test_type": "GET"
+    },
+    {
+      "name": "Preflight OPTIONS Inspection",
+      "probe_origin": "https://evil-attacker.com",
+      "status_code": 200,
+      "acao_received": "https://evil-attacker.com",
+      "acac_received": "true",
+      "acam_received": "GET, POST, PUT, DELETE, OPTIONS",
+      "acah_received": "Authorization, Content-Type, X-Custom-Header",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Preflight reflects attacker origin | Permissive preflight methods (GET, POST, PUT, DELETE, OPTIONS) | Excessive preflight cache max-age: 172800s",
+      "test_type": "OPTIONS"
+    }
+  ],
+  "raw_headers": {
+    "Server": "BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1",
+    "Date": "Tue, 20 Oct 2026 04:14:21 GMT",
+    "Content-Type": "application/json",
+    "X-Powered-By": "PHP/7.4.3"
+  },
+  "metadata": {
+    "redirect_history": [],
+    "final_url": "http://127.0.0.1:8889/vulnerable/cors-reflected-creds"
+  }
+}

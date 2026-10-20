@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Audit: http://127.0.0.1:8889/vulnerable/cors-reflected-creds</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --critical: #ef4444;
+            --high: #f97316;
+            --medium: #eab308;
+            --low: #3b82f6;
+            --pass: #22c55e;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .header-title h1 {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .score-box {
+            text-align: center;
+            background: #0b1120;
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            border: 2px solid #e53e3e;
+            box-shadow: 0 0 20px #e53e3e33;
+        }
+        .score-grade {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #e53e3e;
+            line-height: 1;
+        }
+        .score-num {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stat-card .val {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 0.5rem;
+        }
+        .finding-card {
+            background: var(--surface);
+            border-left: 6px solid #64748b;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-top: 1px solid #334155;
+            border-right: 1px solid #334155;
+            border-bottom: 1px solid #334155;
+        }
+        .border-critical { border-left-color: var(--critical); }
+        .border-high { border-left-color: var(--high); }
+        .border-medium { border-left-color: var(--medium); }
+        .border-low { border-left-color: var(--low); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+        .badge-critical { background: var(--critical); color: #fff; }
+        .badge-high { background: var(--high); color: #fff; }
+        .badge-medium { background: var(--medium); color: #000; }
+        .badge-low { background: var(--low); color: #fff; }
+        .badge-success { background: var(--pass); color: #000; font-weight: bold; }
+        .badge-danger { background: var(--critical); color: #fff; }
+        .badge-warning { background: var(--medium); color: #000; }
+        .badge-secondary { background: #475569; color: #fff; }
+        .evidence-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+            overflow-x: auto;
+        }
+        .evidence-box pre {
+            color: #f1f5f9;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+        }
+        .remediation-box {
+            background: #064e3b33;
+            border-left: 4px solid #10b981;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: #1e293b;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        tr:hover td {
+            background: var(--surface-hover);
+        }
+        code {
+            background: #0b1120;
+            color: #38bdf8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #334155;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        @media print {
+            body { background: #fff; color: #000; padding: 0; }
+            .header, .stat-card, .finding-card, table { background: #fff; border-color: #ccc; color: #000; }
+            .score-box { border-color: #000; }
+            code, pre { background: #eee; color: #000; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-title">
+                <h1>🛡️ Web Security Audit Report</h1>
+                <p>Target: <strong>http://127.0.0.1:8889/vulnerable/cors-reflected-creds</strong> &bull; Scanned: 2026-10-20 04:14:21 UTC</p>
+                <p>Status: <strong>HTTP 200</strong> &bull; Latency: <strong>26.4ms</strong> &bull; Server: <strong>BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1</strong></p>
+            </div>
+            <div class="score-box">
+                <div class="score-grade">F</div>
+                <div class="score-num">0 / 100 Score</div>
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Critical Findings</div>
+                <div class="val" style="color: var(--critical);">4</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">High Risk</div>
+                <div class="val" style="color: var(--high);">1</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Medium Risk</div>
+                <div class="val" style="color: var(--medium);">1</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Low / Informational</div>
+                <div class="val" style="color: var(--low);">5</div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">🚨 Identified Vulnerabilities & Misconfigurations (11)</h2>
+            
+            <div class="card finding-card border-high">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-high">HIGH</span>
+                        <span class="badge badge-secondary">HDR-CSP-01</span>
+                        <strong class="ml-2">Missing Content-Security-Policy (CSP) Header</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> Content Security Policy (CSP) is an effective layer of defense against Cross-Site Scripting (XSS), data injection, and unauthorized frame embedding.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Header 'Content-Security-Policy' was not found in response.</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Leaves client vulnerable to Stored, Reflected, and DOM-based Cross-Site Scripting (XSS).</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Define a restrictive CSP such as: default-src 'self'; script-src 'self'; object-src 'none';</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-medium">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-medium">MEDIUM</span>
+                        <span class="badge badge-secondary">HDR-XFO-01</span>
+                        <strong class="ml-2">Missing Clickjacking Defense (X-Frame-Options / frame-ancestors)</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> Neither X-Frame-Options nor CSP frame-ancestors is present to restrict iframe embedding.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Neither X-Frame-Options nor frame-ancestors found in response headers.</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Allows malicious sites to embed target inside hidden iframes to conduct Clickjacking attacks.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Set 'X-Frame-Options: DENY' or 'SAMEORIGIN', or use CSP 'frame-ancestors' directive.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-low">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-low">LOW</span>
+                        <span class="badge badge-secondary">HDR-XCTO-01</span>
+                        <strong class="ml-2">Missing X-Content-Type-Options Header</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> The X-Content-Type-Options: nosniff header prevents the browser from MIME-sniffing a response away from the declared content-type, preventing executable content execution in non-executable formats.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Header 'X-Content-Type-Options' is missing.</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Browsers may execute malicious user-uploaded content (e.g. SVG or images parsed as HTML/JS).</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Add header: 'X-Content-Type-Options: nosniff'</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-low">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-low">LOW</span>
+                        <span class="badge badge-secondary">HDR-RP-01</span>
+                        <strong class="ml-2">Missing Referrer-Policy Header</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> Referrer-Policy governs what referrer information sent in the Referer header should be included with requests made.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Header 'Referrer-Policy' is missing.</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Sensitive URL query parameters (tokens, session IDs) may be leaked to third-party domains.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Set 'Referrer-Policy: strict-origin-when-cross-origin' or 'no-referrer'.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-low">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-low">LOW</span>
+                        <span class="badge badge-secondary">HDR-PP-01</span>
+                        <strong class="ml-2">Missing Permissions-Policy Header</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> Permissions-Policy allows site administrators to declare which browser features and APIs (e.g., geolocation, camera, microphone, payment) can be used by the page and embedded iframes.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Header 'Permissions-Policy' is not returned.</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Third-party embedded scripts or iframes could attempt to access sensitive hardware APIs.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Add header: Permissions-Policy: camera=(), microphone=(), geolocation=()</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-low">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-low">LOW</span>
+                        <span class="badge badge-secondary">HDR-LEAK-SERVER</span>
+                        <strong class="ml-2">Server Technology Information Disclosure (Server)</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> Server exposes technology header 'server' containing 'BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1'.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>server: BaseHTTP/0.6 Python/3.13.6, Apache/2.4.41 (Ubuntu) OpenSSL/1.1.1</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Revealing backend software frameworks and versions assists attackers in fingerprinting known CVE vulnerabilities and tailoring exploit payloads.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Disable, strip, or mask the 'server' header in reverse proxy or web server config.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-low">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-low">LOW</span>
+                        <span class="badge badge-secondary">HDR-LEAK-X_POWERED_BY</span>
+                        <strong class="ml-2">Server Technology Information Disclosure (X-Powered-By)</strong>
+                    </div>
+                    <span class="text-muted small">A05:2021-Security Misconfiguration</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> Server exposes technology header 'x-powered-by' containing 'PHP/7.4.3'.</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>x-powered-by: PHP/7.4.3</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> Revealing backend software frameworks and versions assists attackers in fingerprinting known CVE vulnerabilities and tailoring exploit payloads.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Disable, strip, or mask the 'x-powered-by' header in reverse proxy or web server config.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-critical">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-critical">CRITICAL</span>
+                        <span class="badge badge-secondary">CORS-CRIT-REFLECTION</span>
+                        <strong class="ml-2">Critical CORS Vulnerability: Reflected Origin with Credentials (Arbitrary Third-Party Origin Reflection)</strong>
+                    </div>
+                    <span class="text-muted small">A01:2021-Broken Access Control</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> The endpoint dynamically reflects the provided Origin header 'https://evil-attacker.com' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Request Origin: https://evil-attacker.com
+Response Access-Control-Allow-Origin: https://evil-attacker.com
+Response Access-Control-Allow-Credentials: true</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-critical">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-critical">CRITICAL</span>
+                        <span class="badge badge-secondary">CORS-CRIT-NULL_ORIGIN</span>
+                        <strong class="ml-2">Critical CORS Vulnerability: Reflected Origin with Credentials (Null Origin Trust (Sandboxed iframe / data: URI))</strong>
+                    </div>
+                    <span class="text-muted small">A01:2021-Broken Access Control</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> The endpoint dynamically reflects the provided Origin header 'null' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Request Origin: null
+Response Access-Control-Allow-Origin: null
+Response Access-Control-Allow-Credentials: true</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-critical">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-critical">CRITICAL</span>
+                        <span class="badge badge-secondary">CORS-CRIT-SUFFIX_BYPASS</span>
+                        <strong class="ml-2">Critical CORS Vulnerability: Reflected Origin with Credentials (Regex Suffix Bypass (Attacker domain as suffix))</strong>
+                    </div>
+                    <span class="text-muted small">A01:2021-Broken Access Control</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> The endpoint dynamically reflects the provided Origin header 'http://127.0.0.1.attacker.com' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Request Origin: http://127.0.0.1.attacker.com
+Response Access-Control-Allow-Origin: http://127.0.0.1.attacker.com
+Response Access-Control-Allow-Credentials: true</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card finding-card border-critical">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge badge-critical">CRITICAL</span>
+                        <span class="badge badge-secondary">CORS-CRIT-PREFIX_BYPASS</span>
+                        <strong class="ml-2">Critical CORS Vulnerability: Reflected Origin with Credentials (Regex Prefix Bypass (Prepend attacker name))</strong>
+                    </div>
+                    <span class="text-muted small">A01:2021-Broken Access Control</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Description:</strong> The endpoint dynamically reflects the provided Origin header 'http://attacker-127.0.0.1' in 'Access-Control-Allow-Origin' AND explicitly enables 'Access-Control-Allow-Credentials: true'. This effectively disables the browser Same-Origin Policy (SOP).</p>
+                    <div class="evidence-box mb-2">
+                        <small class="text-muted font-weight-bold">EVIDENCE:</small>
+                        <pre><code>Request Origin: http://attacker-127.0.0.1
+Response Access-Control-Allow-Origin: http://attacker-127.0.0.1
+Response Access-Control-Allow-Credentials: true</code></pre>
+                    </div>
+                    <p class="mb-2 text-danger"><strong>Impact:</strong> An attacker hosting malicious JavaScript on an external site can make authenticated XMLHttpRequest / Fetch requests to this endpoint using the victim's session cookies or HTTP auth headers, and read sensitive confidential responses.</p>
+                    <div class="remediation-box">
+                        <strong>🛠️ Recommended Remediation:</strong>
+                        <p class="mb-0 text-success">Do NOT dynamically reflect the Origin header. Maintain a strict server-side whitelist of authorized domains. Never set Access-Control-Allow-Credentials: true unless the origin is strictly verified.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <section>
+            <h2 class="section-title">📋 HTTP Security Headers Audit</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Header</th>
+                        <th>Status</th>
+                        <th>Analysis</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td><code>Strict-Transport-Security</code></td>
+                <td><span class="badge badge-warning">INFO</span></td>
+                <td>Not applicable on plain HTTP endpoints. HSTS should be enforced once redirected to HTTPS.</td>
+                <td class="small text-muted">Enforce HTTPS redirect and configure Strict-Transport-Security.</td>
+            </tr>
+            
+            <tr>
+                <td><code>Content-Security-Policy</code></td>
+                <td><span class="badge badge-danger">FAIL</span></td>
+                <td>Missing. Target provides no CSP mitigation against Cross-Site Scripting.</td>
+                <td class="small text-muted">Implement a robust CSP policy restricting script and object sources.</td>
+            </tr>
+            
+            <tr>
+                <td><code>X-Frame-Options</code></td>
+                <td><span class="badge badge-danger">FAIL</span></td>
+                <td>Missing Clickjacking protection.</td>
+                <td class="small text-muted">Set X-Frame-Options: SAMEORIGIN or DENY.</td>
+            </tr>
+            
+            <tr>
+                <td><code>X-Content-Type-Options</code></td>
+                <td><span class="badge badge-danger">FAIL</span></td>
+                <td>Missing. MIME sniffing protection is disabled.</td>
+                <td class="small text-muted">Set X-Content-Type-Options: nosniff</td>
+            </tr>
+            
+            <tr>
+                <td><code>Referrer-Policy</code></td>
+                <td><span class="badge badge-danger">FAIL</span></td>
+                <td>Missing. Default browser fallback will be used.</td>
+                <td class="small text-muted">Set Referrer-Policy: strict-origin-when-cross-origin</td>
+            </tr>
+            
+            <tr>
+                <td><code>Permissions-Policy</code></td>
+                <td><span class="badge badge-warning">WARN</span></td>
+                <td>Missing modern browser hardware/API restriction header.</td>
+                <td class="small text-muted">Specify explicit permissions (e.g. camera=(), microphone=()).</td>
+            </tr>
+            
+            <tr>
+                <td><code>Cross-Origin-Isolation (COOP/COEP)</code></td>
+                <td><span class="badge badge-warning">INFO</span></td>
+                <td>Not configured. Modern defense against Spectre side-channel attacks and tab-nabbing.</td>
+                <td class="small text-muted">Consider adding Cross-Origin-Opener-Policy: same-origin.</td>
+            </tr>
+            
+            <tr>
+                <td><code>Server</code></td>
+                <td><span class="badge badge-warning">WARN</span></td>
+                <td>Banner leakage: exposes Server Software & Version.</td>
+                <td class="small text-muted">Remove or mask 'server'.</td>
+            </tr>
+            
+            <tr>
+                <td><code>X-Powered-By</code></td>
+                <td><span class="badge badge-warning">WARN</span></td>
+                <td>Banner leakage: exposes Application Technology / Framework.</td>
+                <td class="small text-muted">Remove or mask 'x-powered-by'.</td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2 class="section-title">🌐 CORS (Cross-Origin Resource Sharing) Matrix</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Test Probe</th>
+                        <th>Sent Origin</th>
+                        <th>ACAO Response</th>
+                        <th>Credentials (ACAC)</th>
+                        <th>Status</th>
+                        <th>Analysis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td><strong>Arbitrary Third-Party Origin Reflection</strong></td>
+                <td><code>https://evil-attacker.com</code></td>
+                <td><code>https://evil-attacker.com</code></td>
+                <td><code>true</code></td>
+                <td><span class="badge badge-danger">VULNERABLE</span></td>
+                <td class="small">VULNERABLE: Reflects 'https://evil-attacker.com' WITH credentials enabled (ACAC: true)!</td>
+            </tr>
+            
+            <tr>
+                <td><strong>Null Origin Trust (Sandboxed iframe / data: URI)</strong></td>
+                <td><code>null</code></td>
+                <td><code>null</code></td>
+                <td><code>true</code></td>
+                <td><span class="badge badge-danger">VULNERABLE</span></td>
+                <td class="small">VULNERABLE: Reflects 'null' WITH credentials enabled (ACAC: true)!</td>
+            </tr>
+            
+            <tr>
+                <td><strong>Regex Suffix Bypass (Attacker domain as suffix)</strong></td>
+                <td><code>http://127.0.0.1.attacker.com</code></td>
+                <td><code>http://127.0.0.1.attacker.com</code></td>
+                <td><code>true</code></td>
+                <td><span class="badge badge-danger">VULNERABLE</span></td>
+                <td class="small">VULNERABLE: Reflects 'http://127.0.0.1.attacker.com' WITH credentials enabled (ACAC: true)!</td>
+            </tr>
+            
+            <tr>
+                <td><strong>Regex Prefix Bypass (Prepend attacker name)</strong></td>
+                <td><code>http://attacker-127.0.0.1</code></td>
+                <td><code>http://attacker-127.0.0.1</code></td>
+                <td><code>true</code></td>
+                <td><span class="badge badge-danger">VULNERABLE</span></td>
+                <td class="small">VULNERABLE: Reflects 'http://attacker-127.0.0.1' WITH credentials enabled (ACAC: true)!</td>
+            </tr>
+            
+            <tr>
+                <td><strong>Preflight OPTIONS Inspection</strong></td>
+                <td><code>https://evil-attacker.com</code></td>
+                <td><code>https://evil-attacker.com</code></td>
+                <td><code>true</code></td>
+                <td><span class="badge badge-danger">VULNERABLE</span></td>
+                <td class="small">Preflight reflects attacker origin | Permissive preflight methods (GET, POST, PUT, DELETE, OPTIONS) | Excessive preflight cache max-age: 172800s</td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <p>Generated by <strong>CyberSecurity Bootcamp Automated Web Scanner</strong> &bull; OWASP Top 10 Aligned &bull; RFC 6454 CORS Compliant</p>
+        </footer>
+    </div>
+</body>
+</html>
