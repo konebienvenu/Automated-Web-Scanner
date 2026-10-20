@@ -7,288 +7,289 @@
 [![Code Style](https://img.shields.io/badge/Code%20Style-Black%20%2F%20Flake8-black.svg?style=flat-square)](https://github.com/psf/black)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg?style=flat-square)]()
 
-> **Projet de fin de Bootcamp en Cybersécurité / Cybersecurity Capstone Project**  
+> **Cybersecurity Bootcamp Capstone Project**  
 > *"Automated Web Scanner: Programmed a Python script to audit sites for secure headers and CORS flaws."*
 
 ---
 
-## 📌 Présentation du Projet (Résumé en Français)
+## 📌 Project Overview
 
-Ce projet a été conçu et développé dans le cadre de la soutenance finale de validation des acquis en **Cybersécurité**. Il s'agit d'un **scanner de vulnérabilités web automatisé de niveau professionnel** développé en **Python 3**. 
+**Automated Web Security Scanner** is an enterprise-grade web vulnerability scanner developed in **Python 3**. Built as a capstone project to demonstrate mastery of modern defensive web security, it provides automated compliance auditing, risk scoring, and active exploitation probing for two primary web attack surfaces:
 
-L'outil combine :
-1. **L'audit approfondi des en-têtes de sécurité HTTP (Secure Headers)** pour vérifier la résilience de l'application face aux attaques de type Clickjacking, MIME Sniffing, XSS, et SSL Stripping (norme OWASP Secure Headers).
-2. **Un moteur de sondage actif des vulnérabilités CORS (Cross-Origin Resource Sharing)** basé sur le standard RFC 6454 (détection des réflexions d'origines malveillantes, fuite de cookies/sessions, et contournements par origine `null` ou expressions régulières faibles).
-3. **Un système de scoring et de notation (de A+ à F)** avec classification CVSS v3.1 / OWASP Top 10.
-4. **La génération automatique de rapports multi-formats** : terminal interactif stylisé (Rich), tableau de bord **HTML exécutif moderne**, exports **JSON** (compatible pipelines CI/CD DevSecOps) et **Markdown**.
-5. **Un banc de test embarqué (Demo Server)** permettant de tester et démontrer l'outil hors-ligne lors d'un examen ou d'une présentation.
-
----
-
-## 🚀 Key Features / Fonctionnalités Clés
-
-- **🎯 Double Moteur d'Audit :**
-  - **Audit Passif des En-têtes HTTP** : Analyse minutieuse des directives de défense en profondeur.
-  - **Sondage Actif CORS (Active Probing)** : Émission de vecteurs de test dynamiques pour identifier les configurations permissives réelles.
-- **🚨 Détection des Failles CORS Critiques :**
-  - Réflexion dynamique d'origines tierces arbitraires avec `Access-Control-Allow-Credentials: true` (Vol de session/CSRF).
-  - Confiance accordée à l'origine `null` (exploit via `<iframe sandbox="allow-scripts">`).
-  - Contournements de regex par préfixe ou suffixe mal ancré (`https://cible.com.attaquant.com`).
-  - Analyse approfondie des requêtes prévol (`OPTIONS`) et durées de cache excessives.
-- **🛡️ Conformité OWASP Secure Headers :**
-  - `Strict-Transport-Security` (HSTS) : validation `max-age`, `includeSubDomains`, `preload`.
-  - `Content-Security-Policy` (CSP) : détection de `'unsafe-inline'`, `'unsafe-eval'`, wildcards `*`.
-  - `X-Frame-Options` : protection contre le Clickjacking (UI Redressing).
-  - `X-Content-Type-Options` : protection contre le MIME-sniffing (`nosniff`).
-  - `Referrer-Policy` & `Permissions-Policy` (contrôle des APIs matérielles : caméra, micro, géolocalisation).
-  - `COOP` / `COEP` (Isolation mémoire contre Spectre).
-  - Détection de fuite d'informations (Server banners, `X-Powered-By`, versions logicielles).
-- **📊 Système de Scoring & Notation Professionnel :**
-  - Score pondéré de 0 à 100 et note de posture globale : **A+, A, B, C, D, F**.
-  - Règle de plafonnement critique : toute faille critique (CORS avec credentials) abaisse immédiatement la note à D ou F.
-- **📄 Rapports Multi-Formats Exportables :**
-  - **Terminal Coloré (Rich)** avec tableaux et synthèses exécutives.
-  - **Tableau de Bord HTML** responsive, thème cyber sombre, prêt pour impression PDF / livrable client.
-  - **Format JSON normalisé** pour ingestion automatisée.
-  - **Format GitHub Markdown** pour issues et tickets de remédiation.
-- **⚡ DevSecOps Ready :**
-  - Option `--fail-on HIGH` pour bloquer les pipelines CI/CD en cas de régression de sécurité.
-  - Support de proxy pour interception (Burp Suite, OWASP ZAP).
-- **🧪 Serveur de Test Local Intégré :**
-  - Serveur Python léger sans dépendance externe simulant des endpoints vulnérables et durcis.
+1. **Passive HTTP Security Headers Audit**: Validates browser-side defense-in-depth mechanisms according to **OWASP Secure Headers Project** standards (mitigating Clickjacking, MIME-sniffing, XSS, and SSL stripping).
+2. **Active CORS (Cross-Origin Resource Sharing) Probing Engine**: Dispatches dynamic test vectors based on the **W3C / RFC 6454** standard (detecting arbitrary origin reflection, credential exposure, `null` origin trust, and unanchored regular expression bypasses).
+3. **Automated Risk Scoring & Letter Grade Algorithm**: Computes CVSS v3.1-aligned security posture scores from `0` to `100` and assigns letter grades from **A+ to F**.
+4. **Multi-Format Deliverables**: Produces styled terminal outputs, interactive dark-themed **HTML executive dashboards**, CI/CD-ready **JSON** schemas, and GitHub-flavored **Markdown** reports.
+5. **Integrated Mock Testbed Server**: An embedded Python test server simulating vulnerable and hardened endpoints for reliable, offline, reproducible demonstrations.
 
 ---
 
-## 🏗️ Architecture du Système
+## 🚀 Key Features
+
+- **🎯 Dual-Engine Architecture:**
+  - **Passive Header Analysis**: Comprehensive heuristics for defensive directives and deprecation checks.
+  - **Active CORS Probing**: Real-time probe injection testing live server responses against malicious origins.
+- **🚨 Critical CORS Vulnerability Detection:**
+  - Arbitrary origin reflection with `Access-Control-Allow-Credentials: true` (Critical SOP bypass / authenticated data theft).
+  - Dangerous trust of `Origin: null` (exploitable via sandboxed iframes `<iframe sandbox="allow-scripts">` and `data:` URIs).
+  - Weak regular expression prefix/suffix matching flaws (e.g., `https://target.com.attacker.com`).
+  - Preflight `OPTIONS` method scrutiny and excessive cache duration (`Access-Control-Max-Age`).
+- **🛡️ OWASP Secure Headers Audited:**
+  - `Strict-Transport-Security` (HSTS): Enforces HTTPS, verifies `max-age`, `includeSubDomains`, and `preload`.
+  - `Content-Security-Policy` (CSP): Flags insecure `'unsafe-inline'`, `'unsafe-eval'`, and wildcards `*`.
+  - `X-Frame-Options`: Enforces Clickjacking protection (`DENY` / `SAMEORIGIN`) or CSP `frame-ancestors`.
+  - `X-Content-Type-Options`: Enforces `nosniff` against MIME-sniffing exploits.
+  - `Referrer-Policy`: Prevents confidential token/query leakage in referrer headers.
+  - `Permissions-Policy`: Restricts browser hardware APIs (camera, microphone, geolocation).
+  - `COOP` / `COEP`: Cross-origin process isolation protecting against Spectre-class side-channels.
+  - Information Disclosure Banner Grabbing: Detects exposed `Server`, `X-Powered-By`, and runtime framework versions.
+- **📊 Security Scoring & Letter Grade (A+ to F):**
+  - Weighted penalty deductions based on CVSS severity.
+  - Critical cap rule: any critical CORS vulnerability automatically restricts maximum grade to **D** or **F**.
+- **📄 Multi-Format Reporting:**
+  - **Rich Interactive Terminal**: ANSI color-coded tables, severity badges, and executive cards.
+  - **Executive HTML Dashboard**: Standalone responsive dark-theme report with charts, badges, and print-ready CSS.
+  - **Structured JSON Export**: Machine-readable format designed for DevSecOps pipeline ingestion.
+  - **GitHub Markdown**: Formatted for audit documentation and pull request reviews.
+- **⚡ DevSecOps & CI/CD Ready:**
+  - Exit code gating via `--fail-on HIGH` to block deployment pipelines when high or critical findings are detected.
+  - Proxy support (`-p / --proxy`) for traffic inspection with Burp Suite or OWASP ZAP.
+- **🧪 Built-In Testbed Server:**
+  - Standard library mock server (`main.py demo-server`) to demonstrate scanner accuracy offline.
+
+---
+
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
-    User["Utilisateur / CI/CD"] --> CLI["CLI Interface (main.py / cli.py)"]
+    User["User / CI-CD Pipeline"] --> CLI["CLI Interface (main.py / cli.py)"]
     CLI --> Core["WebSecurityScanner (core.py)"]
     
-    subgraph AuditEngine ["Moteur d'Audit"]
-        Core -->|Analyse Passive| HeadersAuditor["HeadersAuditor (headers_auditor.py)"]
-        Core -->|Sondage Actif| CorsAuditor["CorsAuditor (cors_auditor.py)"]
+    subgraph AuditEngine ["Audit Engine"]
+        Core -->|Passive Analysis| HeadersAuditor["HeadersAuditor (headers_auditor.py)"]
+        Core -->|Active Probing| CorsAuditor["CorsAuditor (cors_auditor.py)"]
     end
     
     HeadersAuditor -->|Findings| Grading["GradingEngine (grading.py)"]
     CorsAuditor -->|Findings| Grading
     
-    Grading -->|Score 0-100 & Note A+-F| Reporter["ReportGenerator (reporter.py)"]
+    Grading -->|Score 0-100 & Grade A+-F| Reporter["ReportGenerator (reporter.py)"]
     
-    subgraph Outputs ["Livrables & Rapports"]
-        Reporter --> ConsoleView["Console Rich (Terminal)"]
-        Reporter --> HTMLDashboard["Rapport HTML Exécutif"]
-        Reporter --> JSONOutput["Fichier JSON (CI/CD)"]
-        Reporter --> MarkdownOutput["Rapport Markdown (.md)"]
+    subgraph Outputs ["Deliverables & Reports"]
+        Reporter --> ConsoleView["Rich Terminal Console"]
+        Reporter --> HTMLDashboard["Executive HTML Dashboard"]
+        Reporter --> JSONOutput["JSON Machine Export"]
+        Reporter --> MarkdownOutput["GitHub Markdown (.md)"]
     end
 ```
 
 ---
 
-## ⚡ Installation Rapide
+## ⚡ Installation & Setup
 
-### Prérequis
-- Python 3.8 ou supérieur
+### Prerequisites
+- Python 3.8 or higher
+- Git
 
-### Procédure d'installation
+### Installation Steps
 
 ```bash
-# 1. Cloner ou se positionner dans le dossier du projet
-cd cybersecurity-bootcamp-project
+# 1. Clone the repository
+git clone https://github.com/konebienvenu/Automated-Web-Scanner.git
+cd Automated-Web-Scanner
 
-# 2. Créer un environnement virtuel (recommandé)
-# Sur Windows :
+# 2. Create and activate a virtual environment (recommended)
+# On Windows (PowerShell):
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# Sur Linux / macOS :
+# On Linux / macOS:
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 3. Installer les dépendances
+# 3. Install core dependencies
 pip install -r requirements.txt
 
-# 4. (Optionnel) Installer le package en mode éditable pour avoir la commande système
+# 4. (Optional) Install in editable mode to register system-wide CLI command
 pip install -e .
 ```
 
 ---
 
-## 💻 Guide d'Utilisation
+## 💻 Usage Guide
 
-### 1. Audit d'une Cible Unique
+### 1. Single Target Audit
 ```bash
 python main.py scan https://example.com
 ```
 
-### 2. Générer des Rapports HTML, JSON et Markdown
+### 2. Export HTML, JSON, and Markdown Reports
 ```bash
-python main.py scan https://example.com --html rapport.html --json rapport.json --markdown rapport.md
+python main.py scan https://example.com --html report.html --json report.json --markdown report.md
 ```
 
-### 3. Exécuter un Audit par Lots (Batch Scanning)
-Créez un fichier `targets.txt` contenant les URLs à analyser :
+### 3. Batch Audit Multiple Sites
+Create a line-delimited target file `targets.txt`:
 ```text
 https://owasp.org
 https://github.com
 http://127.0.0.1:8888/vulnerable/cors-reflected-creds
 ```
-Lancez l'audit :
+Run batch audit:
 ```bash
-python main.py batch targets.txt --output-dir mes_rapports --html --json
+python main.py batch targets.txt --output-dir reports/ --html --json
 ```
 
-### 4. Utilisation en Pipeline DevSecOps (Security Gating)
-Interrompez le build si une vulnérabilité d'au moins niveau `HIGH` ou `CRITICAL` est détectée :
+### 4. CI/CD Security Gating (DevSecOps)
+Enforce automated security gating by halting deployment builds if findings meet or exceed a severity threshold:
 ```bash
-python main.py scan https://staging.mon-application.com --fail-on HIGH
+python main.py scan https://staging.internal.net --fail-on HIGH
 ```
-*(Le script quitte avec un code d'erreur `1` en cas d'échec de conformité).*
+*(Returns exit code `1` if CRITICAL or HIGH vulnerabilities exist, otherwise returns `0`).*
 
-### 5. Utilisation avec Burp Suite / OWASP ZAP (Proxy)
+### 5. Proxy Routing (Burp Suite / OWASP ZAP)
 ```bash
 python main.py scan https://example.com -p http://127.0.0.1:8080 -k
 ```
 
 ---
 
-## 🧪 Démonstration Hors-Ligne (Serveur de Test Intégré)
+## 🧪 Live Demonstration (Built-In Mock Testbed)
 
-Pour démontrer le fonctionnement du scanner sans dépendre d'une connexion internet :
+To validate or demonstrate scanner capabilities offline without external internet connectivity:
 
-**Terminal 1 — Lancer le serveur de test :**
+**Terminal 1 — Launch the Mock Testbed Server:**
 ```bash
 python main.py demo-server --port 8888
 ```
 
-**Terminal 2 — Auditer les différents scénarios :**
+**Terminal 2 — Execute Audit Scenarios:**
 ```bash
-# 1. Scénario CRITIQUE : CORS avec réflexion d'origine et cookies (Note F)
-python main.py scan http://127.0.0.1:8888/vulnerable/cors-reflected-creds --html rapport_critique.html
+# 1. CRITICAL Scenario: Arbitrary Origin Reflection + Credentials (Grade F)
+python main.py scan http://127.0.0.1:8888/vulnerable/cors-reflected-creds --html report_vuln.html
 
-# 2. Scénario ÉLEVÉ : Confiance aveugle en l'origine 'null'
+# 2. HIGH Scenario: Dangerous Trust of 'null' Origin
 python main.py scan http://127.0.0.1:8888/vulnerable/cors-null
 
-# 3. Scénario MOYEN : Content-Security-Policy permissive ('unsafe-inline')
+# 3. MEDIUM Scenario: Weak CSP containing 'unsafe-inline' and 'unsafe-eval'
 python main.py scan http://127.0.0.1:8888/vulnerable/weak-csp
 
-# 4. Scénario DURCI (Defense-in-depth) : Note A+ (Score 100/100)
-python main.py scan http://127.0.0.1:8888/secure/hardened --html rapport_securise.html
+# 4. HARDENED Scenario: Defense-in-Depth Implementation (Grade A+ / 100 Score)
+python main.py scan http://127.0.0.1:8888/secure/hardened --html report_secure.html
 ```
 
 ---
 
-## 📋 Matrice des Vulnérabilités Détectées
+## 📋 Vulnerability Detection Matrix
 
-| Identifiant | Règle / Vulnérabilité | Sévérité | Référence OWASP | CWE |
+| Rule ID | Finding Title | Severity | OWASP Top 10 | CWE ID |
 | :--- | :--- | :--- | :--- | :--- |
-| `CORS-CRIT-REFLECTION` | Réflexion d'origine arbitraire avec Credentials (`ACAC: true`) | **CRITICAL** | A01:2021-Broken Access Control | CWE-942 |
-| `CORS-NULL-01` | Autorisation de l'origine `null` (Bypass via Sandboxed iframes) | **HIGH** | A01:2021-Broken Access Control | CWE-942 |
-| `CORS-REFL-SUBDOMAIN` | Biais d'expression régulière (Suffixe / Préfixe arbitraire) | **HIGH / MEDIUM** | A01:2021-Broken Access Control | CWE-942 |
-| `HDR-HSTS-01` | En-tête HSTS manquant sur un point de terminaison HTTPS | **HIGH** | A05:2021-Security Misconfiguration | CWE-319 |
-| `HDR-CSP-01` | En-tête Content-Security-Policy (CSP) manquant | **HIGH** | A05:2021-Security Misconfiguration | CWE-79 |
-| `HDR-CSP-02` | Directive CSP permissive : utilisation de `'unsafe-inline'` | **MEDIUM** | A05:2021-Security Misconfiguration | CWE-79 |
-| `HDR-CSP-03` | Directive CSP permissive : utilisation de `'unsafe-eval'` | **MEDIUM** | A05:2021-Security Misconfiguration | CWE-79 |
-| `HDR-XFO-01` | Défense anti-Clickjacking manquante (`X-Frame-Options`) | **MEDIUM** | A05:2021-Security Misconfiguration | CWE-1021 |
-| `HDR-XCTO-01` | Protection contre le MIME-sniffing manquante (`nosniff`) | **LOW** | A05:2021-Security Misconfiguration | CWE-430 |
-| `HDR-RP-01` | En-tête Referrer-Policy manquant ou insécurisé | **LOW** | A05:2021-Security Misconfiguration | CWE-200 |
-| `HDR-LEAK-*` | Fuite de bannières technologiques (`Server`, `X-Powered-By`) | **LOW / INFO** | A05:2021-Security Misconfiguration | CWE-200 |
+| `CORS-CRIT-REFLECTION` | Reflected Origin with Credentials (`ACAC: true`) | **CRITICAL** | A01:2021-Broken Access Control | CWE-942 |
+| `CORS-NULL-01` | Insecure Trust of `null` Origin (Sandboxed iframe bypass) | **HIGH** | A01:2021-Broken Access Control | CWE-942 |
+| `CORS-REFL-SUBDOMAIN` | Weak Regular Expression Suffix / Prefix Bypass | **HIGH / MED** | A01:2021-Broken Access Control | CWE-942 |
+| `HDR-HSTS-01` | Missing HTTP Strict Transport Security (HSTS) on HTTPS | **HIGH** | A05:2021-Security Misconfiguration | CWE-319 |
+| `HDR-CSP-01` | Missing Content-Security-Policy (CSP) Header | **HIGH** | A05:2021-Security Misconfiguration | CWE-79 |
+| `HDR-CSP-02` | Insecure CSP Directive: `'unsafe-inline'` Permitted | **MEDIUM** | A05:2021-Security Misconfiguration | CWE-79 |
+| `HDR-CSP-03` | Insecure CSP Directive: `'unsafe-eval'` Permitted | **MEDIUM** | A05:2021-Security Misconfiguration | CWE-79 |
+| `HDR-XFO-01` | Missing Clickjacking Defense (`X-Frame-Options` / `frame-ancestors`) | **MEDIUM** | A05:2021-Security Misconfiguration | CWE-1021 |
+| `HDR-XCTO-01` | Missing MIME-Sniffing Defense (`nosniff`) | **LOW** | A05:2021-Security Misconfiguration | CWE-430 |
+| `HDR-RP-01` | Insecure or Missing Referrer-Policy Header | **LOW** | A05:2021-Security Misconfiguration | CWE-200 |
+| `HDR-LEAK-*` | Server Technology Banner Disclosure (`Server`, `X-Powered-By`) | **LOW / INFO** | A05:2021-Security Misconfiguration | CWE-200 |
 
 ---
 
-## 📊 Barème de Notation (Grading Scale)
+## 📊 Security Grading Scale
 
-| Note | Intervalle de Score | Posture de Sécurité & Statut |
+| Grade | Score Range | Posture & Risk Level |
 | :---: | :---: | :--- |
-| **A+** | 95 - 100 | **Excellente** — Tous les en-têtes défensifs présents, HSTS preload, CSP strict, aucun défaut CORS. |
-| **A** | 85 - 94 | **Très Bonne** — Pratiques de sécurité solides, absence de vulnérabilités élevées. |
-| **B** | 70 - 84 | **Bonne** — Défenses principales actives, quelques ajustements mineurs requis. |
-| **C** | 55 - 69 | **Moyenne** — En-têtes critiques manquants (ex: Clickjacking ou HSTS manquant). |
-| **D** | 40 - 54 | **Insuffisante** — Multiples défenses absentes ou CSP inopérant. |
-| **F** | 0 - 39 | **Critique** — Faille CORS critique détectée ou exposition majeure aux attaques. |
+| **A+** | 95 - 100 | **Exceptional** — Full defense-in-depth headers, HSTS preload, strict CSP, zero CORS flaws. |
+| **A** | 85 - 94 | **Strong** — Robust security controls, zero high/critical vulnerabilities. |
+| **B** | 70 - 84 | **Good** — Core headers present, minor non-critical recommendations. |
+| **C** | 55 - 69 | **Moderate** — Important defenses missing (e.g., Clickjacking or HSTS). |
+| **D** | 40 - 54 | **Weak** — Multiple missing defense-in-depth headers, weak CSP configurations. |
+| **F** | 0 - 39 | **Critical Risk** — Critical CORS vulnerability or high-severity exposure identified. |
 
 ---
 
-## 🧪 Tests Unitaires & Assurance Qualité
+## 🧪 Unit Testing & Quality Assurance
 
-Le projet inclut une suite de tests unitaires avec `pytest` validant chaque composant :
+Run the comprehensive unit test suite:
 ```bash
 python -m pytest tests/ -v
 ```
 
 ### GitHub Actions CI Workflow
-Le workflow `.github/workflows/ci.yml` exécute automatiquement :
-- Le linter `flake8` pour l'intégrité du code.
-- L'analyseur de sécurité statique `bandit`.
-- L'ensemble des 16 tests unitaires sur Python 3.10, 3.11, 3.12 et 3.13.
+The automated pipeline in `.github/workflows/ci.yml` runs across multiple Python versions (3.10 through 3.13):
+- Static code analysis with `flake8`.
+- Automated security analysis using `bandit`.
+- Execution of all 16 unit tests.
 
 ---
 
-## 📁 Structure du Projet
+## 📁 Repository Layout
 
 ```
-cybersecurity-bootcamp-project/
+Automated-Web-Scanner/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                     # Pipeline CI/CD GitHub Actions
+│       └── ci.yml                     # Continuous Integration workflow
 ├── docs/
-│   ├── ARCHITECTURE.md                # Spécification d'architecture logicielle
-│   ├── METHODOLOGY.md                 # Concepts théoriques CORS & Headers (OWASP)
-│   ├── USER_GUIDE.md                  # Guide d'utilisation détaillé
-│   └── BOOTCAMP_DEFENSE_SHEET.md      # Fiche de préparation pour la soutenance orale
+│   ├── ARCHITECTURE.md                # Software architectural specification
+│   ├── METHODOLOGY.md                 # In-depth technical theory: SOP, RFC 6454 & OWASP
+│   ├── USER_GUIDE.md                  # Comprehensive user manual
+│   └── BOOTCAMP_DEFENSE_SHEET.md      # Oral defense pitch, demo script & jury Q&A
 ├── examples/
-│   ├── sample_report.html             # Exemple de rapport HTML exécutif généré
-│   ├── sample_report.json             # Exemple de rapport JSON
-│   ├── sample_report.md               # Exemple de rapport Markdown
-│   └── targets.txt                    # Liste de cibles d'exemple pour scan par lot
+│   ├── sample_report.html             # Pre-generated executive HTML dashboard
+│   ├── sample_report.json             # Pre-generated machine JSON deliverable
+│   ├── sample_report.md               # Pre-generated Markdown report
+│   └── targets.txt                    # Sample target list for batch scanning
 ├── scanner/
-│   ├── __init__.py                    # Exports du package et métadonnées
-│   ├── cli.py                         # Interface en ligne de commande (CLI)
-│   ├── core.py                        # Orchestrateur central de l'audit
-│   ├── cors_auditor.py                # Moteur de sondage actif CORS (RFC 6454)
-│   ├── demo_server.py                 # Serveur de test local autonome
-│   ├── grading.py                     # Moteur de calcul des scores et notes (A+ à F)
-│   ├── headers_auditor.py             # Moteur d'audit des en-têtes (OWASP)
-│   ├── models.py                      # Structures de données et Enums
-│   └── reporter.py                    # Générateur de rapports (Terminal, HTML, JSON, MD)
+│   ├── __init__.py                    # Package exports and version info
+│   ├── cli.py                         # Command-line interface logic
+│   ├── core.py                        # Central scanner orchestrator
+│   ├── cors_auditor.py                # Active CORS probing engine
+│   ├── demo_server.py                 # Embedded mock vulnerable & hardened server
+│   ├── grading.py                     # Scoring & letter grading logic
+│   ├── headers_auditor.py             # OWASP secure headers auditor
+│   ├── models.py                      # Strongly-typed data models and Enums
+│   └── reporter.py                    # Multi-format report generator
 ├── tests/
 │   ├── __init__.py
-│   ├── test_cli.py                    # Tests de la CLI et des sorties
-│   ├── test_cors.py                   # Tests de détection des failles CORS
-│   ├── test_grading.py                # Tests du barème de notation
-│   └── test_headers.py                # Tests des règles d'audit d'en-têtes
-├── .gitignore                         # Fichiers et dossiers ignorés par Git
-├── LICENSE                            # Licence Open Source MIT
-├── main.py                            # Point d'entrée principal (script exécutable)
-├── pyproject.toml                     # Configuration moderne de packaging Python
-├── requirements.txt                   # Dépendances de production
-├── requirements-dev.txt               # Dépendances de développement et tests
-├── setup.py                           # Fichier d'installation pip
-└── README.md                          # Documentation principale du projet
+│   ├── test_cli.py                    # CLI and report tests
+│   ├── test_cors.py                   # CORS vulnerability detection tests
+│   ├── test_grading.py                # Scoring algorithm tests
+│   └── test_headers.py                # Secure headers rule tests
+├── .gitignore                         # Git exclusion rules
+├── LICENSE                            # MIT License
+├── main.py                            # Top-level executable entry point
+├── pyproject.toml                     # Modern Python packaging configuration
+├── requirements.txt                   # Production dependencies
+├── requirements-dev.txt               # Development & test dependencies
+├── setup.py                           # Pip installation script
+└── README.md                          # Primary project documentation
 ```
 
 ---
 
-## 📚 Documentation Additionnelle
+## 📚 Technical Documentation References
 
-Pour préparer votre soutenance ou approfondir les concepts :
-- **[Fiche de Soutenance Orale](docs/BOOTCAMP_DEFENSE_SHEET.md)** : Questions types du jury, réponses argumentées et guide de pitch.
-- **[Méthodologie & Théorie Cybersécurité](docs/METHODOLOGY.md)** : Fonctionnement de la SOP, détails des RFCs, vecteurs d'attaque et remédiations de code (Nginx, Apache, Express, FastAPI).
-- **[Architecture Système](docs/ARCHITECTURE.md)** : Diagrammes détaillés des composants et flux de données.
-- **[Manuel Utilisateur](docs/USER_GUIDE.md)** : Options détaillées de la CLI et exemples avancés.
-
----
-
-## ⚖️ Avertissement Éthique & Légal (Disclaimer)
-
-Ce logiciel a été développé à des fins éducatives et d'audit de sécurité défensif. Vous ne devez utiliser cet outil que sur des systèmes et applications web pour lesquels vous avez obtenu une **autorisation explicite et préalable du propriétaire**. L'auteur décline toute responsabilité en cas d'utilisation non conforme ou malveillante de ce logiciel.
+- **[Oral Defense Cheat Sheet](docs/BOOTCAMP_DEFENSE_SHEET.md)**: 3-minute oral pitch, step-by-step live demo script, and answers to expected jury questions.
+- **[Methodology & Cybersecurity Theory](docs/METHODOLOGY.md)**: Deep dive into Same-Origin Policy mechanics, CORS attack vectors, and server-side remediation snippets (Nginx, Apache, Express, FastAPI).
+- **[System Architecture](docs/ARCHITECTURE.md)**: Component interaction diagrams and design patterns.
+- **[User Guide & Manual](docs/USER_GUIDE.md)**: Complete CLI command reference and advanced flag combinations.
 
 ---
 
-## 👤 Auteur
+## ⚖️ Legal & Ethical Disclaimer
+
+This software is developed strictly for educational, defensive, and authorized penetration testing purposes. Auditing targets without explicit prior written authorization from the system owner is illegal and unethical. The author assumes no liability for misuse of this software.
+
+---
+
+## 👤 Author
 
 - **Kone Bienvenu** ([@konebienvenu](https://github.com/konebienvenu))
-- Dépôt officiel : [Automated-Web-Scanner](https://github.com/konebienvenu/Automated-Web-Scanner)
-- Sujet : *Automated Web Scanner: Programmed a Python script to audit sites for secure headers and CORS flaws.*
-- Licence : [MIT License](LICENSE)
+- Repository: [Automated-Web-Scanner](https://github.com/konebienvenu/Automated-Web-Scanner)
+- Topic: *Automated Web Scanner: Programmed a Python script to audit sites for secure headers and CORS flaws.*
+- License: [MIT License](LICENSE)

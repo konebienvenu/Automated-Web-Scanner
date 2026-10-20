@@ -1,80 +1,80 @@
-# 🎓 Bootcamp Oral Defense Cheat Sheet (Fiche de Soutenance)
+# 🎓 Bootcamp Oral Defense Cheat Sheet
 
-> Ce document a été spécialement conçu pour vous préparer à présenter et soutenir ce projet de fin de bootcamp devant un jury d'examinateurs, un tuteur ou un recruteur en cybersécurité.
-
----
-
-## 1. Le Pitch du Projet (Présentation en 2-3 minutes)
-
-**"Bonjour à tous,**
-
-Dans le cadre de la validation de mes acquis en cybersécurité, j'ai conçu et développé un **scanner d'audit web automatisé** axé sur deux vecteurs critiques d'hygiène et de conformité web :
-1. **L'analyse approfondie des en-têtes de sécurité HTTP (Secure Headers)** selon les recommandations OWASP.
-2. **La détection active des failles de configuration CORS (Cross-Origin Resource Sharing)** selon la spécification RFC 6454.
-
-Trop souvent, les scanners se contentent de lire passivement des en-têtes sans tester le comportement réel de l'application. Mon outil implémente un moteur de **sondage actif (active probing)** qui soumet différentes origines malveillantes (domaines arbitraires, origine `null`, contournements par sous-domaines mal ancrés) et vérifie si le serveur autorise de manière illégitime la fuite de données d'utilisateurs authentifiés (`Access-Control-Allow-Credentials: true`).
-
-Le scanner génère un scoring de risque de 0 à 100, attribue une note de sécurité (de A+ à F), et produit des rapports exécutifs au format **HTML moderne**, **JSON exploitable en CI/CD**, et **Markdown**. Enfin, j'ai intégré un **serveur de démonstration vulnérable/durci** permettant de valider l'ensemble des scénarios d'attaque hors-ligne."
+> This document is designed to prepare you for presenting and defending this cybersecurity capstone project before an examination jury, mentor, or hiring manager.
 
 ---
 
-## 2. Déroulement de la Démonstration en Direct (Live Demo Script)
+## 1. Executive Pitch (2-3 Minutes Introduction)
 
-Pour votre démo, ouvrez **deux terminaux** :
+**"Good morning / afternoon everyone,**
 
-### Étape 1 : Démarrer le serveur de test (Terminal 1)
+As part of my cybersecurity bootcamp capstone evaluation, I developed **Automated Web Security Scanner**, an automated security auditing tool built in Python focused on two critical web security areas:
+1. **Defensive HTTP Security Headers Audit** based on the **OWASP Secure Headers Project**.
+2. **Active CORS (Cross-Origin Resource Sharing) Misconfiguration Probing** based on the **W3C / RFC 6454** standard.
+
+While standard scanners often perform passive header lookups, this tool features an **Active Probing Engine**. It dynamically dispatches controlled test vectors (untrusted external origins, `null` origins, and unanchored regex bypasses) to observe whether the server improperly allows authenticated cross-origin data exposure via `Access-Control-Allow-Credentials: true`.
+
+The scanner calculates a CVSS-weighted risk score from 0 to 100, assigns an overall security grade from **A+ to F**, and exports multi-format deliverables: **Rich terminal tables**, modern executive **HTML dashboards**, CI/CD-ready **JSON** schemas, and GitHub **Markdown** reports. Finally, an embedded **mock testbed server** is included to demonstrate and reproduce all vulnerability detection scenarios offline."
+
+---
+
+## 2. Step-by-Step Live Demonstration Script
+
+For your live demonstration, open **two terminal windows**:
+
+### Step 1: Start the Local Testbed Server (Terminal 1)
 ```bash
 python main.py demo-server --port 8888
 ```
-*Commentaire à dire au jury :*  
-*"Pour cette démo, je lance le serveur de test embarqué qui simule différents environnements vulnérables et durcis."*
+*Talking point for the jury:*  
+*"I am spinning up our embedded testbed server which simulates both vulnerable endpoints and hardened enterprise endpoints."*
 
-### Étape 2 : Scanner l'endpoint vulnérable aux failles CORS critiques (Terminal 2)
+### Step 2: Audit the Critical CORS Vulnerable Endpoint (Terminal 2)
 ```bash
-python main.py scan http://127.0.0.1:8888/vulnerable/cors-reflected-creds --html rapport_vuln.html
+python main.py scan http://127.0.0.1:8888/vulnerable/cors-reflected-creds --html report_vuln.html
 ```
-*Montrez au jury :*
-- La détection de la faille **CRITIQUE** : Réflexion de l'origine de l'attaquant avec `Access-Control-Allow-Credentials: true`.
-- L'absence des en-têtes défensifs (CSP, HSTS, X-Frame-Options).
-- La note finale : **Note F** (Score 0/100).
-- Ouvrez le fichier `rapport_vuln.html` dans votre navigateur pour montrer le tableau de bord exécutif.
+*Point out to the jury:*
+- The **CRITICAL** finding: Origin reflection combined with `Access-Control-Allow-Credentials: true`.
+- Missing defensive headers (CSP, HSTS, X-Frame-Options).
+- The final score: **Grade F** (Score 0/100).
+- Open `report_vuln.html` in your browser to showcase the executive dashboard.
 
-### Étape 3 : Scanner l'endpoint sécurisé et durci
+### Step 3: Audit the Hardened Endpoint (Grade A+)
 ```bash
 python main.py scan http://127.0.0.1:8888/secure/hardened
 ```
-*Montrez au jury :*
-- Tous les en-têtes OWASP sont conformes (HSTS preload, CSP strict, X-Content-Type-Options: nosniff, etc.).
-- Les requêtes CORS d'attaquants sont rejetées.
-- La note finale : **Note A+** (Score 100/100).
+*Point out to the jury:*
+- Complete OWASP defense-in-depth compliance (HSTS preload, strict CSP, nosniff, frame protection).
+- Untrusted cross-origin requests are rejected by whitelist.
+- The final score: **Grade A+** (Score 100/100).
 
-### Étape 4 : Montrer la suite de tests unitaires
+### Step 4: Run the Automated Unit Test Suite
 ```bash
-python -m pytest tests/
+python -m pytest tests/ -v
 ```
-*Commentaire à dire au jury :*  
-*"Le projet intègre une suite de tests unitaires avec pytest couvrant 100% des règles d'audit, validée par un workflow GitHub Actions pour l'intégration continue."*
+*Talking point for the jury:*  
+*"The tool includes an automated test suite with pytest covering 100% of audit rules, validated by GitHub Actions for CI/CD."*
 
 ---
 
-## 3. Questions Fréquentes du Jury & Réponses Types
+## 3. Anticipated Jury Questions & Expert Answers
 
-### Q1 : "Pourquoi avoir choisi de faire un scan CORS actif plutôt que passif ?"
-> **Réponse attendue :**  
-> *"Une analyse passive ne lit que la réponse statique sans savoir comment le serveur réagit à des origines spécifiques. Or, les failles CORS les plus dangereuses surviennent lorsque le serveur dynamique lit l'en-tête `Origin` de la requête HTTP et la reflète dynamiquement dans `Access-Control-Allow-Origin`. Sans envoyer de probe active avec une origine tierce (comme `https://evil-attacker.com` ou `Origin: null`), il est impossible de détecter cette vulnérabilité critique."*
+### Q1: "Why did you implement active CORS probing instead of only passive header inspection?"
+> **Answer:**  
+> *"Passive analysis only reads headers on a standard GET request without knowing how the server handles specific origins. The most critical CORS flaws occur when server-side logic dynamically reflects the incoming `Origin` header into `Access-Control-Allow-Origin`. Without sending active probes with untrusted origins (such as `https://evil-attacker.com` or `Origin: null`), it is impossible to detect whether the server dynamically reflects unauthorized domains."*
 
-### Q2 : "Pourquoi la combinaison `Access-Control-Allow-Origin: *` avec des cookies est-elle impossible dans les navigateurs modernes ?"
-> **Réponse attendue :**  
-> *"La spécification W3C/Fetch interdit strictement l'utilisation conjointe du wildcard `*` et de `Access-Control-Allow-Credentials: true`. Les navigateurs bloquent la lecture de la réponse si cette combinaison est reçue. Cependant, pour contourner cette restriction, de nombreux développeurs font l'erreur d'implémenter un mécanisme qui reflète l'origine reçue, ce qui réintroduit exactement le même risque critique de vol de session."*
+### Q2: "Why is `Access-Control-Allow-Origin: *` with credentials invalid in modern browsers?"
+> **Answer:**  
+> *"The W3C Fetch specification explicitly forbids combining wildcard `*` with `Access-Control-Allow-Credentials: true`. Browsers automatically block reading the response if this combination is received. To work around this restriction, developers frequently write insecure code that dynamically reflects the received origin, which reintroduces the critical vulnerability of authenticated credential theft."*
 
-### Q3 : "En quoi `Content-Security-Policy: frame-ancestors` est-il supérieur à `X-Frame-Options` ?"
-> **Réponse attendue :**  
-> *"`X-Frame-Options` (RFC 7034) est un ancien en-tête limité aux valeurs `DENY` ou `SAMEORIGIN` (la directive `ALLOW-FROM` étant obsolète et mal supportée). CSP `frame-ancestors` (niveau 2 et 3) permet de définir précisément une liste blanche de domaines autorisés à intégrer la page dans une iframe, tout en supportant les sous-domaines et les schémas HTTPS de manière granulaire."*
+### Q3: "How does CSP `frame-ancestors` improve upon `X-Frame-Options`?"
+> **Answer:**  
+> *"`X-Frame-Options` (RFC 7034) is a legacy header limited to `DENY` or `SAMEORIGIN` (the `ALLOW-FROM` directive is deprecated and unsupported across modern browsers). CSP `frame-ancestors` (Level 2 and 3) provides granular control, allowing multiple whitelisted domains, specific schemes (HTTPS only), and subdomain wildcards."*
 
-### Q4 : "Quel est le risque de l'origine `null` dans CORS ?"
-> **Réponse attendue :**  
-> *"L'en-tête `Origin: null` est émis par le navigateur dans des contextes particuliers, notamment depuis une iframe isolée par sandbox (`<iframe sandbox='allow-scripts'>`), ou depuis un schéma `data:`. Si un serveur fait confiance à `null`, un attaquant hébergeant n'importe quel site web peut simplement encapsuler son script malveillant dans une iframe sandboxée pour usurper cette origine et dérober des données sensibles."*
+### Q4: "What is the security risk of trusting the `null` origin?"
+> **Answer:**  
+> *"The browser assigns an `Origin: null` in specific contexts, such as sandboxed iframes (`<iframe sandbox='allow-scripts'>`) or `data:` URIs. If a server trusts `null`, an attacker hosting malicious JavaScript on any domain can wrap their exploit inside a sandboxed iframe to masquerade with an origin of `null` and steal confidential data."*
 
-### Q5 : "Comment ce scanner s'intègre-t-il dans un pipeline CI/CD DevSecOps ?"
-> **Réponse attendue :**  
-> *"J'ai conçu l'option `--fail-on <SEVERITY>` (par exemple `--fail-on HIGH`) et la sortie JSON. Dans un pipeline GitLab CI ou GitHub Actions, la commande analyse l'environnement de staging. Si une vulnérabilité critique ou élevée est détectée, le script retourne un code d'erreur 1 qui bloque automatiquement le déploiement en production tant que la régression n'a pas été corrigée."*
+### Q5: "How does this scanner integrate into a DevSecOps CI/CD pipeline?"
+> **Answer:**  
+> *"The scanner provides the `--fail-on <SEVERITY>` flag (e.g., `--fail-on HIGH`) and structured JSON output. In GitLab CI or GitHub Actions, the pipeline executes the scanner against staging. If a critical or high-risk misconfiguration is found, the script returns exit code 1, automatically stopping the build and preventing security regressions from reaching production."*
