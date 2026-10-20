@@ -129,16 +129,16 @@ python main.py scan https://example.com
 python main.py scan https://example.com --html report.html --json report.json --markdown report.md
 ```
 
-### 3. Batch Audit Multiple Sites
-Create a line-delimited target file `targets.txt`:
+### 3. Batch Audit Multiple Sites (Using Dataset)
+The scanner includes a curated dataset of target endpoints and test cases in [`examples/targets.txt`](https://github.com/konebienvenu/Automated-Web-Scanner/blob/main/examples/targets.txt):
 ```text
 https://owasp.org
 https://github.com
 http://127.0.0.1:8888/vulnerable/cors-reflected-creds
 ```
-Run batch audit:
+Run batch audit across the dataset:
 ```bash
-python main.py batch targets.txt --output-dir reports/ --html --json
+python main.py batch examples/targets.txt --output-dir reports/ --html --json
 ```
 
 ### 4. CI/CD Security Gating (DevSecOps)
