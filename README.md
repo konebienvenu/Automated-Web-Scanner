@@ -219,11 +219,10 @@ Run the comprehensive unit test suite:
 python -m pytest tests/ -v
 ```
 
-### GitHub Actions CI Workflow
-The automated pipeline in `.github/workflows/ci.yml` runs across multiple Python versions (3.10 through 3.13):
-- Static code analysis with `flake8`.
-- Automated security analysis using `bandit`.
-- Execution of all 16 unit tests.
+### Static Analysis & Code Quality
+- **Unit Tests**: 16/16 tests validating header audits, CORS vectors, and grading calculations.
+- **Code Linting**: Verified compliant with `flake8`.
+- **Security Audit**: Automated AST security vulnerability scans via `bandit`.
 
 ---
 
@@ -231,9 +230,6 @@ The automated pipeline in `.github/workflows/ci.yml` runs across multiple Python
 
 ```
 Automated-Web-Scanner/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                     # Continuous Integration workflow
 ├── docs/
 │   ├── ARCHITECTURE.md                # Software architectural specification
 │   ├── METHODOLOGY.md                 # In-depth technical theory: SOP, RFC 6454 & OWASP
